@@ -48,4 +48,20 @@ function sum_valid_game_ids(game_record)
     sum(valid_ids)
 end
 
+function find_powers(games)
+    minimum_colours_product = map(games) do game
+        drawsets = game.drawsets
+        green = mapreduce(drawset -> drawset.green, (a, b) -> maximum([a, b]), drawsets)
+        red = mapreduce(drawset -> drawset.red, (a, b) -> maximum([a, b]), drawsets)
+        blue = mapreduce(drawset -> drawset.blue, (a, b) -> maximum([a, b]), drawsets)
+        red * green * blue
+    end
+    minimum_colours_product
+end
+
+function solve_part_2(game_record)
+    games = parse_game(game_record)
+    game_powers = find_powers(games)
+    sum(game_powers)
+end
 end

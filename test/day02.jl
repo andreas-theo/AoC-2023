@@ -53,9 +53,12 @@ end
         day02.Game(5, day02.Drawset[day02.Drawset(6, 3, 1), day02.Drawset(1, 2, 2)]),
     ]
     parsed_res = day02.parse_game(IOBuffer(test_day_02))
+    # Check that the parsing is correct
     @test getfield.(parsed_res, :game_id) == getfield.(test_day_02_res, :game_id)
     @test getfield.(parsed_res, :drawsets) == getfield.(test_day_02_res, :drawsets)
     valid_games = BitVector((true, true, false, false, true))
     test_drawsets = getfield.(test_day_02_res, :drawsets)
     @test day02.is_game_valid.(test_drawsets) == valid_games
+    @test day02.find_powers(test_day_02_res) == [48, 12, 1560, 630, 36]
+    @test day02.solve_part_2(IOBuffer(test_day_02)) == 2286
 end
