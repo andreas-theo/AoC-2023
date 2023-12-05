@@ -3,6 +3,9 @@ uuid = "1250b849-1c23-4ff1-be95-db620b512630"
 authors = ["Andreas Theodosiou <atheodosiou@protonmail.ch> and contributors"]
 version = "1.0.0-DEV"
 
+[deps]
+ParserCombinator = "fae87a5f-d1ad-5cf0-8f61-c941e1580b46"
+
 [compat]
 julia = "1"
 

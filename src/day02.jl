@@ -1,32 +1,51 @@
 module day02
+using ParserCombinator
 
 const max_red = 12
 const max_green = 13
 const max_blue = 14
 
-function parse_game(game_records)
-    lines = filter(v -> v != "", split(game_records, "\n"))
-    parse_line.(lines)
+@kwdef struct Drawset
+    red::Int = 0
+    green::Int = 0
+    blue::Int = 0
 end
 
-function parse_line(s)
-    balls_in_game = getindex(split(s, ": "), 2)
-    balls_per_round = split(balls_in_game, "; ")
-    parse_round.(balls_per_round)
+@kwdef struct Game
+    game_id::Int = 0
+    drawsets::Vector{Drawset}
 end
 
-function parse_round(balls_in_round)
-    colours = Dict("red" => 0, "green" => 0, "blue" => 0)
-    for round in split(balls_in_round, ", ")
-        count, colour = split.(round, " ")
-        colours[colour] += parse(Int, count)
+function build_grammar()
+    header = E"Game " + PInt() + E":"
+    red = Equal("red")
+    green = Equal("green")
+    blue = Equal("blue")
+    draw =
+        E" " + PInt() + E" " + (red | green | blue) + Star(E",") |>
+        v -> Symbol(v[2]) => v[1]
+    drawset = Repeat(draw, 1, 3) + (E";" | E"\n" | Eos()) |> v -> Drawset(; v...)
+    drawsets = drawset[1:end]
+    game = header + drawsets |> v -> Game(v[1], v[2:end])
+    game
+end
+
+function parse_game(game_record)
+    game = build_grammar()
+    map(eachline(game_record)) do line
+        parse_one(line, game) |> only
     end
-    colours
 end
 
-is_round_valid(round) =
-    (round["red"] ≤ max_red) && (round["green"] ≤ max_green) && (round["blue"] ≤ max_blue)
+is_round_valid(draw) =
+    (draw.red ≤ max_red) && (draw.green ≤ max_green) && (draw.blue ≤ max_blue)
 
 is_game_valid(rounds) = all(is_round_valid.(rounds))
+
+function sum_valid_game_ids(game_record)
+    games = parse_game(game_record)
+    valid_ids = getfield.(games[is_game_valid.(getfield.(games, :drawsets))], :game_id)
+    sum(valid_ids)
+end
 
 end
